@@ -1,0 +1,18 @@
+#!/bin/bash
+
+err() {
+  printf "%s\n" "$@" >&2
+}
+
+usage() {
+  err "usage: $0 [-a --option-a] [-b --option-b <value>]" \
+    "  -a, --option-a   Option A" \
+    "  -b, --option-b   Option B with value"
+}
+
+while (( "$#" > 0 )); do case "$1" in
+  -a|--option-a) echo 'option-a: activated';;
+  -b|--option-b) echo "option-b: $2"; shift;;
+  *) err "Invalid option: $1"; usage; exit 1;;
+esac; shift; done
+
