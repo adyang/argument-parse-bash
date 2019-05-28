@@ -1,0 +1,31 @@
+#!/bin/bash
+
+err() {
+  printf "%s\n" "$@" >&2
+}
+
+usage() {
+  err "usage: $0 [-a --option-a] [-b <value> --option-b <value>] [-c[<value>] --option-c=[<value>]]" \
+    "  -a, --option-a   Option A" \
+    "  -b, --option-b   Option B with value" \
+    "  -c, --option-c   Option C with optional value"
+}
+
+ensure_gnu_getopt() {
+  getopt --test
+  if (( "$?" != 4 )); then err 'Script requires GNU getopt'; exit 2; fi
+}
+
+ensure_gnu_getopt
+
+readonly OPTIONS="$(getopt --name "$0" --options 'a,b:,c::' --longoptions 'option-a,option-b:,option-c::' -- "$@")" GETOPT_STATUS="$?"
+if (( "${GETOPT_STATUS}" != 0 )); then usage; exit 1; fi
+eval set -- "${OPTIONS}"
+
+while true; do case "$1" in
+  -a|--option-a) echo 'option-a: activated';;
+  -b|--option-b) echo "option-b: $2"; shift;;
+  -c|--option-c) echo "option-c: ${2:-no-value}"; shift;;
+  --) shift; break;;
+esac; shift; done
+
